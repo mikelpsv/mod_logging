@@ -1,4 +1,4 @@
-package main
+package mod_logging
 
 import (
 	"log"
