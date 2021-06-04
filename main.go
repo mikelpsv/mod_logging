@@ -1,6 +1,7 @@
 package mod_logging
 
 import (
+	"io"
 	"log"
 	"os"
 )
@@ -12,18 +13,35 @@ var (
 	Error   *log.Logger
 )
 
-func Init(filePath string) {
+func Init(filePathStdLog, filePathErrLog string) {
 
-	/*
-	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalln("Failed to open log file ", filePath, ":", err)
+	aWritersStd := make([]io.Writer, 2)
+	aWritersStd = append(aWritersStd, os.Stdout)
+
+	aWritersErr := make([]io.Writer, 2)
+	aWritersErr = append(aWritersErr, os.Stderr)
+
+	if filePathStdLog != ""{
+		file, err := os.OpenFile(filePathStdLog, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalln("Failed to open log file ", filePathStdLog, ":", err)
+		}
+		aWritersStd = append(aWritersStd, file)
 	}
-	multi := io.MultiWriter(file, os.Stdout)
-    */
+	if filePathErrLog != ""{
+		file, err := os.OpenFile(filePathErrLog, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalln("Failed to open log file ", filePathErrLog, ":", err)
+		}
+		aWritersStd = append(aWritersStd, file)
+	}
 
-	Trace = log.New(os.Stdout, "TRACE: ", log.Ldate|log.Ltime|log.Lshortfile)
-	Info = log.New(os.Stdout, "INFO: ",  log.Ldate|log.Ltime|log.Lshortfile)
-	Warning = log.New(os.Stderr, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
-	Error = log.New(os.Stderr, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	writerStd  := io.MultiWriter(aWritersStd...)
+	writerErr := io.MultiWriter(aWritersErr...)
+
+
+	Trace = log.New(writerStd, "TRACE: ", log.Ldate|log.Ltime)
+	Info = log.New(writerStd, "INFO: ",  log.Ldate|log.Ltime)
+	Warning = log.New(writerErr, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+	Error = log.New(writerErr, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
 }
