@@ -15,10 +15,10 @@ var (
 
 func Init(filePathStdLog, filePathErrLog string) {
 
-	aWritersStd := make([]io.Writer, 2)
+	aWritersStd := make([]io.Writer, 0, 2)
 	aWritersStd = append(aWritersStd, os.Stdout)
 
-	aWritersErr := make([]io.Writer, 2)
+	aWritersErr := make([]io.Writer, 0, 2)
 	aWritersErr = append(aWritersErr, os.Stderr)
 
 	if filePathStdLog != ""{
